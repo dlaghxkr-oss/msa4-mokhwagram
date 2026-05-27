@@ -10,7 +10,6 @@ spring:
     username:
     password:
     driver-class-name:
-
 # MyBatis
 mybatis:
   mapper-locations:
@@ -27,3 +26,4 @@ logging:
 
     # 특정 패키지만 로그 출력 레벨 설정
     com.msa4mokhwagram.controllers:
+
