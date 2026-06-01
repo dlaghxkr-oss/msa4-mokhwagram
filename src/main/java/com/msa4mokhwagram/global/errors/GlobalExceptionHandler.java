@@ -5,12 +5,14 @@ import com.msa4mokhwagram.global.errors.custom.NotRegisteredException;
 import com.msa4mokhwagram.global.responses.GlobalRes;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import javax.naming.AuthenticationException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -19,7 +21,7 @@ import java.util.List;
 public class GlobalExceptionHandler {
     @ExceptionHandler(NotRegisteredException.class)
     public ResponseEntity<GlobalRes<String>> notRegisteredHandle(NotRegisteredException e) {
-        return ResponseEntity.status(400).body(
+        return ResponseEntity.status(401).body(
                 GlobalRes.<String>builder()
                     .code("E01")
                     .message("로그인 에러.")
@@ -28,9 +30,31 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<GlobalRes<String>> authenticationHandle(AuthenticationException e) {
+        return ResponseEntity.status(401).body(
+                GlobalRes.<String>builder()
+                        .code("E02")
+                        .message("UNAUTHENTICATED_ERROR.")
+                        .data("로그인이 필요한 서비스입니다.")
+                        .build()
+        );
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<GlobalRes<String>> accessDeniedHandle(AccessDeniedException e) {
+        return ResponseEntity.status(403).body(
+                GlobalRes.<String>builder()
+                        .code("E03")
+                        .message("UNAUTHORIZED_ERROR.")
+                        .data("로그인이 필요한 서비스입니다.")
+                        .build()
+        );
+    }
+
     @ExceptionHandler(InvalidTokenException.class)
     public ResponseEntity<GlobalRes<String>> InvalidTokenHandle(InvalidTokenException e) {
-        return ResponseEntity.status(400).body(
+        return ResponseEntity.status(401).body(
                 GlobalRes.<String>builder()
                         .code("E04")
                         .message("토큰 이상")
