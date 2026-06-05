@@ -4,6 +4,7 @@ import com.msa4mokhwagram.domain.post.entities.Post;
 import com.msa4mokhwagram.domain.post.mapper.PostMapper;
 import com.msa4mokhwagram.domain.post.requests.PostIndexReq;
 import com.msa4mokhwagram.domain.post.responses.PostIndexRes;
+import com.msa4mokhwagram.global.errors.custom.DeletedRecordException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -30,5 +31,15 @@ public class PostService {
                 .lastPage(lastPage)
                 .posts(posts)
                 .build();
+    }
+
+    public Post show(long id) {
+        Post post = postMapper.findByPk(id);
+
+        if(post == null) {
+            throw new DeletedRecordException("이미 삭제된 게시글입니다.");
+        }
+
+        return post;
     }
 }

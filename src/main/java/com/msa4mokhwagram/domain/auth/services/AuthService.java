@@ -2,12 +2,17 @@ package com.msa4mokhwagram.domain.auth.services;
 
 import com.msa4mokhwagram.domain.auth.mapper.AuthMapper;
 import com.msa4mokhwagram.domain.auth.requests.LoginReq;
+import com.msa4mokhwagram.domain.auth.requests.RegistrationReq;
 import com.msa4mokhwagram.domain.auth.responses.AuthRes;
+import com.msa4mokhwagram.domain.post.mapper.PostMapper;
 import com.msa4mokhwagram.domain.user.entities.User;
 import com.msa4mokhwagram.domain.user.mapper.UserMapper;
 import com.msa4mokhwagram.domain.user.responses.UserRes;
+import com.msa4mokhwagram.global.errors.custom.DuplicatedRecordException;
 import com.msa4mokhwagram.global.errors.custom.InvalidTokenException;
 import com.msa4mokhwagram.global.errors.custom.NotRegisteredException;
+import com.msa4mokhwagram.global.security.constant.ProviderPolicy;
+import com.msa4mokhwagram.global.security.constant.RolePolicy;
 import com.msa4mokhwagram.global.security.cookie.CookieManager;
 import com.msa4mokhwagram.global.security.jwt.JwtConfig;
 import com.msa4mokhwagram.global.security.jwt.JwtProvider;
@@ -29,6 +34,7 @@ public class AuthService {
     private final CookieManager cookieManager;
     private final JwtConfig jwtConfig;
     private final PasswordEncoder passwordEncoder;
+    private final PostMapper postMapper;
 
     @Transactional(rollbackFor = Exception.class)
     public AuthRes login(HttpServletResponse response, LoginReq loginReq) {
@@ -62,8 +68,8 @@ public class AuthService {
         // 유저 획득
         User user = userMapper.findByPk(id);
 
-        // 유저 가입 여부 확인
-        if(user == null) {
+        // 유저 가입 여부 확인 및 비로그인 상태 확인
+        if(user == null || user.getRefreshToken() == null) {
             throw new InvalidTokenException("유효하지 않은 회원의 토큰입니다.");
         }
 
@@ -82,6 +88,9 @@ public class AuthService {
      * @return AuthRes
      */
     private AuthRes generateAuthentication(HttpServletResponse response, User user) {
+        // 작성 게시글 수 획득
+        long countPosts = postMapper.countPostsByUserId(user.getId());
+
         // 토큰 생성
         String newAccessToken = jwtProvider.generateAccessToken(user);
         String newRefreshToken = jwtProvider.generateRefreshToken(user);
@@ -103,11 +112,13 @@ public class AuthService {
                 .accessToken(newAccessToken)
                 .user(
                         UserRes.builder()
+                                .id(user.getId())
                                 .email(user.getEmail())
                                 .nick(user.getNick())
                                 .role(user.getRole())
                                 .profile(user.getProfile())
                                 .createdAt(user.getCreatedAt())
+                                .countPosts(countPosts)
                                 .build()
                 )
                 .build();
@@ -133,5 +144,25 @@ public class AuthService {
                 ,0
                 ,jwtConfig.reissUri()
         );
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void registration(RegistrationReq registrationReq) {
+        // 유저 정보 획득
+        User user = userMapper.findByEmail(registrationReq.email());
+
+        if(user != null) {
+            throw new DuplicatedRecordException("이미 가입된 회원입니다.");
+        }
+
+        User newUser = new User();
+        newUser.setEmail(registrationReq.email());
+        newUser.setPassword(passwordEncoder.encode(registrationReq.password()));
+        newUser.setNick(registrationReq.nick());
+        newUser.setProfile(registrationReq.profile());
+        newUser.setProvider(ProviderPolicy.NONE.getProvider());
+        newUser.setRole(RolePolicy.NORMAL.getRole());
+        authMapper.create(newUser);
+
     }
 }

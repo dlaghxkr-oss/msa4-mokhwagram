@@ -14,4 +14,28 @@
             WHERE
                 id = #{id}
     </update>
+
+    <insert
+        id="create"
+        parameterType="com.msa4mokhwagram.domain.user.entities.User"
+        useGeneratedKeys="true"
+        keyProperty="id"
+    >
+        INSERT INTO users(
+            email
+            ,password
+            ,nick
+            ,profile
+            ,role
+            ,provider
+        ) VALUES (
+             #{email}
+            ,#{password}
+            ,#{nick}
+            ,#{profile}
+            ,#{role}
+            ,#{provider}
+        )
+
+    </insert>
 </mapper>
