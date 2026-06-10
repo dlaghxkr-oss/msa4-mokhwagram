@@ -2,16 +2,17 @@ package com.msa4mokhwagram.domain.post.controller;
 
 import com.msa4mokhwagram.domain.post.entities.Post;
 import com.msa4mokhwagram.domain.post.requests.PostIndexReq;
+import com.msa4mokhwagram.domain.post.requests.PostStoreReq;
 import com.msa4mokhwagram.domain.post.responses.PostIndexRes;
 import com.msa4mokhwagram.domain.post.services.PostService;
 import com.msa4mokhwagram.global.responses.GlobalRes;
+import io.jsonwebtoken.Claims;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
 @RestController
@@ -44,6 +45,22 @@ public class PostController {
                     .message("게시글 상세 정상 처리")
                     .data(result)
                     .build()
+        );
+    }
+
+    @PostMapping("/posts")
+    public ResponseEntity<GlobalRes<Post>> store(
+            @Valid @RequestBody PostStoreReq postStoreReq
+            , @AuthenticationPrincipal Claims claims
+    ) {
+        Post result = postService.store(Long.parseLong(claims.getSubject()), postStoreReq);
+
+        return ResponseEntity.status(200).body(
+                GlobalRes.<Post>builder()
+                        .code("00")
+                        .message("게시글 작성 완료")
+                        .data(result)
+                        .build()
         );
     }
 }

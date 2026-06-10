@@ -51,4 +51,22 @@
             AND user_id =#{userId}
 
     </select>
+
+    <insert
+        id="create"
+        parameterType="com.msa4mokhwagram.domain.post.entities.Post"
+        useGeneratedKeys="true"
+        keyProperty="id"
+    >
+        INSERT INTO posts(
+            user_id
+            ,content
+            ,image
+        )   VALUES (
+            #{userId}
+            ,#{content}
+            ,#{image}
+        )
+
+    </insert>
 </mapper>

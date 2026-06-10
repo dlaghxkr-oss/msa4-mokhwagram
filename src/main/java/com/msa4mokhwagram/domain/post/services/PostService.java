@@ -3,6 +3,7 @@ package com.msa4mokhwagram.domain.post.services;
 import com.msa4mokhwagram.domain.post.entities.Post;
 import com.msa4mokhwagram.domain.post.mapper.PostMapper;
 import com.msa4mokhwagram.domain.post.requests.PostIndexReq;
+import com.msa4mokhwagram.domain.post.requests.PostStoreReq;
 import com.msa4mokhwagram.domain.post.responses.PostIndexRes;
 import com.msa4mokhwagram.global.errors.custom.DeletedRecordException;
 import lombok.RequiredArgsConstructor;
@@ -41,5 +42,17 @@ public class PostService {
         }
 
         return post;
+    }
+
+    public Post store(long userId, PostStoreReq postStoreReq) {
+        Post post = Post.builder()
+                .userId(userId)
+                .content(postStoreReq.content())
+                .image(postStoreReq.image())
+                .build();
+
+        postMapper.create(post);
+
+        return postMapper.findByPk(post.getId());
     }
 }
