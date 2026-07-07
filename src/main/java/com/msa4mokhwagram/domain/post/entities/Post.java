@@ -23,7 +23,7 @@ public class Post {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", columnDefinition = "BIGINT UNSIGNED")
-    private long id;
+    private Long id;
 
     @Column(name = "content", nullable = false, length = 200)
     private String content;
