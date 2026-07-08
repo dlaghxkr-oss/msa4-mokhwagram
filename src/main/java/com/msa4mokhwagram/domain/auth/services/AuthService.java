@@ -130,7 +130,7 @@ public class AuthService {
     @Transactional(rollbackFor = Exception.class)
     public void registration(RegistrationReq registrationReq) {
         // 유저 정보 획득
-        if(authRepository.existByEmail(registrationReq.email())) {
+        if(authRepository.existsByEmail(registrationReq.email())) {
             throw new DuplicatedRecordException("이미 가입된 회원입니다.");
         }
 
