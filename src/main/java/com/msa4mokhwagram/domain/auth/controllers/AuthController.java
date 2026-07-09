@@ -4,8 +4,13 @@ import com.msa4mokhwagram.domain.auth.requests.LoginReq;
 import com.msa4mokhwagram.domain.auth.requests.RegistrationReq;
 import com.msa4mokhwagram.domain.auth.responses.AuthRes;
 import com.msa4mokhwagram.domain.auth.services.AuthService;
+import com.msa4mokhwagram.global.annotations.openapi.ApiNotValidErrorResponse;
+import com.msa4mokhwagram.global.annotations.openapi.ApiUnauthenticatedErrorResponse;
 import com.msa4mokhwagram.global.responses.GlobalRes;
 import io.jsonwebtoken.Claims;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -17,18 +22,23 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+// @Tag: API들을 기능별 또는 도메인별로 그룹화 할 때 사용
+@Tag(name = "인증 API", description = "인증 및 인가 담당 API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
 public class AuthController {
     private final AuthService authService;
 
+    @Operation(summary = "로그인 처리", description = "이메일과 비밀번호로 로그인")
+    @ApiResponse(responseCode = ("200"), description = "로그인 성공")
+    @ApiNotValidErrorResponse
+    @ApiUnauthenticatedErrorResponse
     @PostMapping("/login")
     public ResponseEntity<GlobalRes> login(
             @Valid @RequestBody LoginReq loginReq
             , HttpServletResponse response
     ) {
-
         return ResponseEntity.status(200).body(
                 GlobalRes.<AuthRes>builder()
                     .code("00")

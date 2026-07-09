@@ -2,7 +2,9 @@ package com.msa4mokhwagram.domain.auth.responses;
 
 import com.msa4mokhwagram.domain.user.entities.User;
 import com.msa4mokhwagram.domain.user.responses.UserWithPostCountRes;
+import io.swagger.v3.oas.annotations.media.Schema;
 
+@Schema(description = "로그인 레스폰스")
 public record AuthRes(
     UserWithPostCountRes user
     ,String accessToken
