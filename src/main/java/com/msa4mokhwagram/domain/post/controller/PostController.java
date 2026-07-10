@@ -4,10 +4,11 @@ import com.msa4mokhwagram.domain.post.requests.PostIndexReq;
 import com.msa4mokhwagram.domain.post.responses.PostIndexRes;
 import com.msa4mokhwagram.domain.post.responses.PostWithUserRes;
 import com.msa4mokhwagram.domain.post.services.PostService;
-import com.msa4mokhwagram.global.annotations.openapi.ApiNotValidErrorResponse;
+import com.msa4mokhwagram.global.config.openapi.CustomApiResponse;
 import com.msa4mokhwagram.global.responses.GlobalRes;
+import com.msa4mokhwagram.global.responses.constant.CustomResponseCode;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
@@ -24,8 +25,14 @@ import org.springframework.web.bind.annotation.RestController;
 public class PostController {
     private final PostService postService;
 
-    @ApiResponse(responseCode = "200", description = "게시글 목록 획득 성공")
-    @ApiNotValidErrorResponse
+    @Operation(summary = "게시글 목록 조회 처리")
+    @CustomApiResponse(value = {
+            CustomResponseCode.INVALID_PARAMETER_ERROR
+            ,CustomResponseCode.INVALID_TOKEN_ERROR
+            ,CustomResponseCode.UNAUTHENTICATED_ERROR
+            ,CustomResponseCode.FILE_MANAGED_ERROR
+            ,CustomResponseCode.SYSTEM_ERROR
+    })
     @GetMapping("/posts")
     public ResponseEntity<GlobalRes<PostIndexRes>> index(PostIndexReq postIndexReq) {
         return ResponseEntity.ok(GlobalRes.success(postService.index(postIndexReq)));
