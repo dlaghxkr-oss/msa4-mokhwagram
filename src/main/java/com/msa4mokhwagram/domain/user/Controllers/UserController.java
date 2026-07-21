@@ -10,5 +10,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api")
 public class UserController {
     private final UserService userService;
-
+//    private final UserRepository userRepository;
+//
+//    @GetMapping("/test")
+//    public List<User> test() {
+//        return userRepository.findAll();
+//    }
 }
